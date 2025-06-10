@@ -1,0 +1,1156 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin King</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wallet {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: #FFD700;
+            color: #000;
+            font-weight: bold;
+            padding: 12px 15px;
+            border-radius: 25px;
+            box-shadow: 0 0 12px #FFD700;
+            font-size: 15px;
+            z-index: 1000;
+            transition: 0.3s ease;
+            height: auto;
+            line-height: 1.2;
+        }
+        .wallet.win { background: #00c897; color: #fff; box-shadow: 0 0 12px #00c897; }
+        .wallet.lose { background: #ff4444; color: #fff; box-shadow: 0 0 12px #ff4444; }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 60px;
+            flex-direction: column;
+        }
+        .game-box {
+            background: #1f1f1f;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px #000;
+            text-align: center;
+            width: 360px;
+            max-width: 95%;
+        }
+        .coin {
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+            perspective: 1000px;
+        }
+
+        .coin-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .spin {
+            animation: rotateCoin 5s linear;
+        }
+
+        @keyframes rotateCoin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(7200deg); }
+        }
+
+        .side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            box-shadow: 0 0 12px #FFD700;
+            color: #000;
+        }
+
+        .king { transform: rotateY(0deg); }
+        .queen { transform: rotateY(180deg); }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .bet-controls button {
+            padding: 10px;
+            width: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            background: #FFD700;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            margin: 0 8px;
+            cursor: pointer;
+        }
+
+        #bet {
+            background: #fff;
+            color: #000;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100px;
+            text-align: center;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .side-btn {
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .side-btn.selected {
+            background-color: #FFD700;
+            color: #000;
+        }
+
+        .start-btn {
+            background-color: #00c897;
+            color: #fff;
+            width: 200px;
+            cursor: pointer;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #FFD700;
+            display: none;
+        }
+
+        #cooldown {
+            margin-top: 10px;
+            color: #FF6347;
+            font-weight: bold;
+        }
+
+        .history {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .history ul {
+            padding-left: 20px;
+            list-style: none;
+        }
+
+        .history li.win { color: #00ff99; }
+        .history li.lose { color: #ff6666; }
+
+        .section {
+            padding: 20px;
+            width: 100%;
+        }
+        .section-container {
+            font-size:15px;
+            background-color: #151515;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            text-align:left;
+            padding: 8px;
+        }
+
+        th {
+            background-color:rgb(45, 37, 37);
+        }
+        .section-container input[type="number"],
+        .section-container input[type="text"],
+        .section-container input[type="file"] {
+            width: calc(100% - 24px); /* Adjust for padding and border */
+            padding: 10px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #555; /* Darker, softer border */
+            border-radius: 6px; /* More rounded corners */
+            box-sizing: border-box;
+            background-color: #222; /* Deeper background */
+            color: #eee; /* Lighter text */
+            font-size: 0.95em;
+        }
+
+        .section-container input:focus {
+            outline: none;
+            border-color: #00bfa5; /* Accent color on focus */
+            box-shadow: 0 0 5px rgba(0, 191, 165, 0.5); /* Subtle glow on focus */
+        }
+
+        .section-container button {
+            background-color: #2e7d32; /* Pleasant green */
+            color: #f0f8ea; /* Light, contrasting text */
+            padding: 12px 18px; /* Slightly larger padding */
+            border: none;
+            border-radius: 6px; /* More rounded corners */
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px; /* Increased margin */
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        }
+
+        .section-container button:hover {
+            background-color: #1b5e20; /* Darker shade on hover */
+            transform: scale(1.02); /* Gentle scale on hover */
+        }
+
+        .section-container label {
+            display: block;
+            margin-top: 15px; /* Increased margin */
+            margin-bottom: 6px;
+            color: #b0bec5; /* Softer label color */
+            text-align: left;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        #addBalanceSuccessMessage,
+        #addBalanceErrorMessage { /* Combined styles for success/error messages */
+            text-align: center;
+            margin-top: 15px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+            display: none; /* Initially hidden - show with JavaScript */
+        }
+
+        #addBalanceSuccessMessage {
+            background-color: rgba(76, 175, 80, 0.15); /* Light green */
+            color: #2e7d32; /* Darker pleasant green text */
+            border: 1px solid #4caf50; /* Green border */
+        }
+
+        #addBalanceErrorMessage {
+            background-color: rgba(255, 69, 0, 0.15); /* Light orange-red */
+            color: #d32f2f; /* Darker red text */
+            border: 1px solid #ff4500; /* Orange-red border */
+        }
+
+        #withdrawSuccessMessage,
+        #popupMessageWithdraw,
+        #withdrawErrorMessage { /* Added withdrawErrorMessage */
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9em;
+            display: none; /* Initially hidden */
+        }
+
+        #withdrawSuccessMessage {
+            background-color: rgba(76, 175, 80, 0.15); /* Light green */
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        #popupMessageWithdraw {
+            background-color: rgba(255, 167, 38, 0.15); /* Light amber */
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        #withdrawErrorMessage { /* New style for withdraw errors */
+            background-color: rgba(255, 69, 0, 0.15);
+            color: #d32f2f;
+            border: 1px solid #ff4500;
+        }
+
+
+        .detail-row td {
+            font-size: 0.9em;
+            background-color: #1c1c1c; /* Slightly darker background */
+            color: #90a4ae; /* Softer text color */
+            padding: 10px;
+        }
+
+        /* Attractive and Pleasant Menu Details Styles */
+        .offcanvas-header {
+            background-color: #37474f; /* Cool grey header */
+            border-bottom: 1px solid #546e7a;
+            padding: 18px;
+        }
+
+        .offcanvas-title {
+            color: #eceff1 !important; /* Very light grey title */
+            font-size: 1.4em;
+            font-weight: bold;
+            letter-spacing: 0.7px;
+        }
+
+        .offcanvas-body {
+            padding: 25px;
+            background-color: #263238; /* Darker, pleasant background */
+        }
+
+        .offcanvas-body .navbar-nav {
+            margin-bottom: 20px;
+        }
+
+        .offcanvas-body .navbar-nav .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .offcanvas-body .navbar-nav .nav-link {
+            color: #b0bec5 !important; /* Soft blue-grey link color */
+            padding: 12px 18px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .offcanvas-body .navbar-nav .nav-link:hover {
+            background-color: #455a64; /* Slightly lighter grey on hover */
+            color: #fff !important;
+        }
+
+        .offcanvas-body .navbar-nav details {
+            background-color: #37474f; /* Cool grey background for details */
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            border: 1px solid #546e7a; /* Subtle border */
+        }
+
+        .offcanvas-body .navbar-nav summary {
+            color: #cfd8dc !important; /* Light grey summary text */
+            padding: 14px 20px;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .offcanvas-body .navbar-nav summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .offcanvas-body .navbar-nav summary::after {
+            content: '▾'; /* Down arrow for open/close */
+            font-size: 1em;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .offcanvas-body .navbar-nav details[open] > summary::after {
+            transform: rotate(180deg);
+        }
+
+        .offcanvas-body .navbar-nav summary:hover {
+            background-color: #455a64;
+            color: #fff !important;
+        }
+
+        .offcanvas-body .navbar-nav .section-container {
+            background-color: #455a64; /* Slightly lighter grey for section content */
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .offcanvas-body .navbar-nav .section-container h3 {
+            color: #eceff1;
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #546e7a;
+            padding-bottom: 8px;
+        }
+
+        .offcanvas-body .navbar-nav .section-container p,
+        .offcanvas-body .navbar-nav .section-container strong,
+        .offcanvas-body .navbar-nav .section-container label {
+            color: #b0bec5;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .offcanvas-body .navbar-nav .section-container input[type="number"],
+        .offcanvas-body .navbar-nav .section-container input[type="text"],
+        .offcanvas-body .navbar-nav .section-container input[type="file"] {
+            background-color: #37474f;
+            border: 1px solid #546e7a;
+            color: #eceff1;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .offcanvas-body .navbar-nav .section-container input:focus {
+            outline: none;
+            border-color: #00bfa5;
+            box-shadow: 0 0 5px rgba(0, 191, 165, 0.5);
+        }
+
+        .offcanvas-body .navbar-nav .section-container button {
+            background-color: #2e7d32; /* Pleasant green */
+            color: #f0f8ea;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 18px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .offcanvas-body .navbar-nav .section-container button:hover {
+            background-color: #1b5e20;
+            transform: scale(1.02);
+        }
+
+        .offcanvas-body .navbar-nav #searchInput {
+            background-color: #37474f;
+            border: 1px solid #546e7a;
+            color: #eceff1;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .offcanvas-body button { /* Logout button style */
+            background-color: #d32f2f; /* Pleasant red */
+            color: #ffebee;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 18px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 18px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .offcanvas-body button:hover {
+            background-color: #b71c1c; /* Darker red on hover */
+            transform: scale(1.02);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
+        }
+
+        th,
+        td {
+            border: 1px solid #455a64;
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 0.9em;
+        }
+
+        th {
+            background-color: #37474f;
+            color: #eceff1;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #263238;
+        }
+
+        .detail-row td {
+            background-color: #1c1c1c;
+            color: #90a4ae;
+        }
+
+        .table-wrapper-horizontal {
+            overflow-x: auto; /* Enable horizontal scrollbar when content overflows */
+            margin-top: 10px; /* Add some space above the table */
+            border: 1px solid #555; /* Optional: Add a border to the scrollable area */
+            border-radius: 8px;
+        }
+
+        .horizontal-table {
+            width: auto; /* Important: Let the table width expand based on content */
+            border-collapse: collapse;
+            margin-bottom: 10px; /* Add some space below the table */
+        }
+
+        .horizontal-table th,
+        .horizontal-table td {
+            border: 1px solid #455a64; /* Use your theme's border color */
+            text-align: left;
+            padding: 12px 15px;
+            white-space: nowrap; /* Prevent text wrapping, forcing horizontal overflow */
+            font-size: 0.9em;
+        }
+
+        .horizontal-table th {
+            background-color: #37474f; /* Use your theme's header background */
+            color: #eceff1; /* Use your theme's header text color */
+            font-weight: bold;
+        }
+
+        .horizontal-table tr:nth-child(even) {
+            background-color: #263238; /* Use your theme's even row background */
+        }
+
+        /* Optional: Style the scrollbar for WebKit browsers (Chrome, Safari) */
+        .table-wrapper-horizontal::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-wrapper-horizontal::-webkit-scrollbar-thumb {
+            background-color: #666;
+            border-radius: 4px;
+        }
+
+        .table-wrapper-horizontal::-webkit-scrollbar-thumb:hover {
+            background-color: #888;
+        }
+
+        /* Optional: Style the scrollbar for Firefox */
+        .table-wrapper-horizontal {
+            scrollbar-width: thin;
+            scrollbar-color: #666 #333;
+        }
+
+        /* NEW: Styles for the in-page "Balance Added" popup */
+        #balanceAddedOnPagePopup {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stays in place relative to the viewport */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centers the popup */
+            background-color: rgba(33, 150, 243, 0.95); /* A slightly darker blue with more opacity */
+            color: #fff;
+            padding: 25px 35px; /* More generous padding */
+            border-radius: 12px; /* More rounded corners */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em; /* Slightly larger text */
+            z-index: 2000; /* Higher than offcanvas */
+            max-width: 350px; /* Max width for responsiveness */
+            animation: fadeIn 0.3s ease-out; /* Smooth fade-in */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        #balanceAddedOnPagePopup.hidden {
+            animation: fadeOut 0.5s ease-out forwards; /* Smooth fade-out */
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <div class="wallet" id="wallet">Wallet: ₹500<br><small>(Winning: ₹0 | Remaining: ₹500)</small></div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        <li class="nav-item w-100">
+                            <details>
+                                <summary class="nav-link">profile details</summary>
+                                <div class="section" id="profileDetailsSection">
+                                    <div class="section-container">
+                                        <p><strong>Username:</strong> Sandeep</p>
+                                        <p><strong>Phone:</strong> 7993800177</p>
+                                        <p><strong>Email:</strong> sandy939876@gmail.com</p>
+                                    </div>
+                                </div>
+                            </details>
+                        </li>
+
+                        <li class="nav-item w-100">
+                            <details>
+                                <summary class="nav-link">Add Balance</summary>
+                                <div class="section" id="addBalanceSection">
+                                    <div class="section-container">
+                                        <h3>Add Balance</h3>
+                                        <strong>Current Wallet Balance: ₹<span id="walletBalanceAdd">1000</span></strong>
+                                        <div id="addBalanceSuccessMessage">Balance added successfully!</div>
+                                        <div id="addBalanceErrorMessage"></div>
+                                        <form id="addBalanceForm">
+                                            <label>Amount:</label>
+                                            <input type="number" id="addAmount" placeholder="Enter amount to add" min="1" required />
+
+                                            <label>Upload Screenshot (.jpg):</label>
+                                            <input type="file" id="screenshotUpload" accept=".jpg,.jpeg" required>
+                                            <button type="submit" id="addBalanceBtn">Add Balance</button>
+                                        </form>
+                                        <div id="qrCodeContainer">
+                                            <p>Scan this QR to pay:</p>
+                                            <img src="https://via.placeholder.com/150x150.png?text=QR+Code" alt="QR Code for payment" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        </li>
+
+                        <li class="nav-item">
+                            <details>
+                                <summary class="nav-link">Withdraw</summary>
+                                <div class="section" id="withdrawSection">
+                                    <div class="section-container">
+                                        <h3>Withdraw</h3>
+                                        <strong>Current Wallet Balance: ₹<span id="walletBalanceWithdraw">500</span></strong><br>
+                                        <strong>Winning Balance: ₹<span id="winningBalance">0</span></strong>
+
+                                        <div id="popupMessageWithdraw">Withdrawals will be processed within 10 minutes to 24 hours.</div>
+                                        <div id="withdrawSuccessMessage">Withdrawal request submitted successfully.</div>
+                                        <div id="withdrawErrorMessage"></div>
+                                        <form id="withdrawForm">
+                                            <label>Account Holder Name:</label>
+                                            <input type="text" id="accountHolder" maxlength="36" required>
+                                            <label>Account Number:</label>
+                                            <input type="text" id="accountNumber" pattern="^\d{9,18}$" required>
+                                            <label>IFSC Code:</label>
+                                            <input type="text" id="ifscCode" pattern="^[A-Za-z]{4}\d{7}$" required>
+                                            <label>Amount:</label>
+                                            <input type="number" id="withdrawAmount" min="100" required>
+                                            <button type="submit">Withdraw</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </details>
+                        </li>
+                       <li class="nav-item w-100">
+                            <details>
+                                <summary class="nav-link">Transaction History</summary>
+                                <div class="section" id="transactionHistorySection">
+                                    <div class="section-container">
+                                        <h3>Transaction History</h3>
+                                        <input type="text" id="searchInput" onkeyup="searchTransactions()" placeholder="Search...">
+                                        <div class="table-wrapper-horizontal">
+                                            <table id="transactionTable" class="horizontal-table">
+                                                <thead id="transactionTableHeader">
+                                                    <tr>
+                                                        <th>Transaction ID</th>
+                                                        <th>Type</th>
+                                                        <th>Amount</th>
+                                                        <th>Balance</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="transactionTableBody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        </li>
+                        <li class="nav-item">
+                            <button onclick="logout()">Logout</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container">
+        <div class="game-box">
+            <h1>🪙 COIN KING</h1>
+            <div class="coin">
+                <div class="coin-inner" id="coinInner">
+                    <div class="side king">KING</div>
+                    <div class="side queen">QUEEN</div>
+                </div>
+            </div>
+
+            <div id="result">Result: </div>
+
+            <div class="controls">
+                <div class="bet-controls">
+                    <button onclick="changeBet(-10)">−</button>
+                    <input type="text" id="bet" value="100" />
+                    <button onclick="changeBet(10)">+</button>
+                </div>
+                <div>
+                    <button class="side-btn" id="btnKing" onclick="selectSide('KING')">KING</button>
+                    <button class="side-btn" id="btnQueen" onclick="selectSide('QUEEN')">QUEEN</button>
+                </div>
+                <button class="start-btn" onclick="flipCoin()" id="startButton">START</button>
+                <div id="cooldown"></div>
+            </div>
+
+            <div class="history">
+                <h3>History</h3>
+                <ul id="historyList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="balanceAddedOnPagePopup">
+        Balance added successfully! Please wait 10-30 minutes for processing.
+    </div>
+
+    <script>
+        // Global variables for game and wallet balances
+        let totalBalance = 500; // Initial balance for the game
+        let winningBalance = 0; // Initial winning balance
+        let remainingBalance = 500; // Initial remaining balance (total - winning)
+
+        // Variables for daily limits
+        let dailyAddedAmount = 0;
+        let lastAddDate = new Date().toDateString();
+
+        let dailyWithdrawAmount = 0;
+        let withdrawCountToday = 0;
+        let lastWithdrawDate = new Date().toDateString();
+
+        // Game specific variables
+        let selectedSide = null;
+        let flipping = false;
+        let cooldownSeconds = 30;
+        let cooldownTimer = null;
+
+        // Function to update the main wallet display at the top-left
+        function updateWalletDisplay(extra = '', cssClass = '') {
+            const wallet = document.getElementById('wallet');
+            wallet.className = 'wallet ' + cssClass;
+            remainingBalance = totalBalance - winningBalance; // Ensure remainingBalance is always totalBalance - winningBalance
+
+            wallet.innerHTML = `${extra ? extra + ' → ' : ''}Wallet: ₹${totalBalance}
+                <br><small>(Winning: ₹${winningBalance} | Remaining: ₹${remainingBalance})</small>`;
+
+            if (extra) {
+                setTimeout(() => {
+                    wallet.className = 'wallet';
+                    wallet.innerHTML = `Wallet: ₹${totalBalance}
+                        <br><small>(Winning: ₹${winningBalance} | Remaining: ₹${remainingBalance})</small>`;
+                }, 2000);
+            }
+            // Crucially, update the offcanvas balances as well
+            updateBalanceDisplaysInOffcanvas();
+        }
+
+        // Function to update the balances displayed within the offcanvas menu
+        function updateBalanceDisplaysInOffcanvas() {
+            document.getElementById("walletBalanceAdd").textContent = totalBalance;
+            document.getElementById("walletBalanceWithdraw").textContent = totalBalance;
+            document.getElementById("winningBalance").textContent = winningBalance;
+        }
+
+        // Function to add a transaction to the history table
+        function addTransaction(id, type, amount, balance, status, date, time) {
+            const tbody = document.getElementById("transactionTableBody");
+            const statusColor = { Success: "#00ff99", Pending: "#ff9800", Failed: "#ff6666" }[status] || "#b0bec5"; // Use theme colors
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${id}</td><td>${type}</td><td>₹${amount}</td><td>₹${balance}</td>
+                <td><span style="color: ${statusColor};"><strong>${status}</strong></span></td>
+                <td><button onclick="toggleDetails(this)">▼</button></td>`;
+
+            const detailRow = document.createElement("tr");
+            detailRow.classList.add("detail-row");
+            detailRow.style.display = "none"; // Initially hidden
+            detailRow.innerHTML = `<td colspan="6"><strong>Date:</strong> ${date} &nbsp; <strong>Time:</strong> ${time}</td>`;
+
+            tbody.prepend(detailRow);
+            tbody.prepend(row);
+        }
+
+        // Event listener for the "Add Balance" form submission
+        document.getElementById("addBalanceForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const today = new Date().toDateString();
+            if (today !== lastAddDate) {
+                dailyAddedAmount = 0;
+                lastAddDate = today;
+            }
+
+            const amountInput = document.getElementById("addAmount");
+            const fileInput = document.getElementById("screenshotUpload");
+            const addBalanceErrorMessage = document.getElementById("addBalanceErrorMessage");
+            const addBalanceSuccessMessage = document.getElementById("addBalanceSuccessMessage");
+            const balanceAddedOnPagePopup = document.getElementById("balanceAddedOnPagePopup"); // Our new popup element
+
+            addBalanceErrorMessage.style.display = "none"; // Hide previous errors
+            addBalanceSuccessMessage.style.display = "none";
+            balanceAddedOnPagePopup.classList.remove('hidden'); // Ensure no fade-out class from previous use
+            balanceAddedOnPagePopup.style.display = "none"; // Hide our new popup initially
+
+            const amount = parseFloat(amountInput.value);
+            const file = fileInput.files[0];
+
+            if (isNaN(amount) || amount <= 0) {
+                addBalanceErrorMessage.textContent = "Please enter a valid amount (greater than 0).";
+                addBalanceErrorMessage.style.display = "block";
+                return;
+            }
+
+            if (!file || !file.name.match(/\.(jpg|jpeg)$/i)) {
+                addBalanceErrorMessage.textContent = "Please upload a JPG/JPEG screenshot.";
+                addBalanceErrorMessage.style.display = "block";
+                return;
+            }
+
+            if (dailyAddedAmount + amount > 5000) {
+                addBalanceErrorMessage.textContent = "You can only add up to ₹5000 per day.";
+                addBalanceErrorMessage.style.display = "block";
+                return;
+            }
+
+            totalBalance += amount;
+            remainingBalance += amount; // Assuming added money goes to remaining balance
+            dailyAddedAmount += amount;
+
+            updateWalletDisplay(); // Update the main wallet display and offcanvas balances
+            this.reset(); // Clear the form fields
+
+            const now = new Date();
+            addTransaction("TXN" + Date.now(), "Credit", amount, totalBalance, "Pending", now.toISOString().split("T")[0], now.toLocaleTimeString());
+
+            // Show the success message within the offcanvas
+            addBalanceSuccessMessage.textContent = "Balance added successfully! Please wait 10-30 minutes for processing.";
+            addBalanceSuccessMessage.style.display = "block";
+            
+            // Show the on-page popup
+            balanceAddedOnPagePopup.style.display = "block"; 
+
+            // Set timeout to hide both messages and the on-page popup
+            setTimeout(() => {
+                addBalanceSuccessMessage.style.display = "none";
+                balanceAddedOnPagePopup.classList.add('hidden'); // Add hidden class for fade-out animation
+                setTimeout(() => {
+                    balanceAddedOnPagePopup.style.display = "none"; // Completely hide after animation
+                }, 500); // Match fadeOut animation duration
+            }, 5000); // Hide messages and popup after 5 seconds
+        });
+
+
+        // Event listener for the "Withdraw" form submission
+        document.getElementById("withdrawForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const today = new Date().toDateString();
+            if (today !== lastWithdrawDate) {
+                dailyWithdrawAmount = 0;
+                withdrawCountToday = 0;
+                lastWithdrawDate = today;
+            }
+
+            const withdrawAmountInput = document.getElementById("withdrawAmount");
+            const withdrawErrorMessage = document.getElementById("withdrawErrorMessage");
+            const withdrawSuccessMessage = document.getElementById("withdrawSuccessMessage");
+            const popupMessageWithdraw = document.getElementById("popupMessageWithdraw"); // This was for withdraw, keeping it separate
+
+            withdrawErrorMessage.style.display = "none"; // Hide previous errors
+            withdrawSuccessMessage.style.display = "none";
+            popupMessageWithdraw.style.display = "none";
+
+            const amount = parseFloat(withdrawAmountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                withdrawErrorMessage.textContent = "Please enter a valid withdrawal amount.";
+                withdrawErrorMessage.style.display = "block";
+                return;
+            }
+
+            if (amount < 100) {
+                withdrawErrorMessage.textContent = "Minimum withdrawal amount is ₹100.";
+                withdrawErrorMessage.style.display = "block";
+                return;
+            }
+
+            if (amount > winningBalance) {
+                withdrawErrorMessage.textContent = "Withdrawal exceeds your winning balance. You can only withdraw from winning balance.";
+                withdrawErrorMessage.style.display = "block";
+                return;
+            }
+
+            if (amount > totalBalance) { // This check is mostly redundant due to winningBalance check but good for safety
+                withdrawErrorMessage.textContent = "Withdrawal exceeds your total balance.";
+                withdrawErrorMessage.style.display = "block";
+                return;
+            }
+
+            if (withdrawCountToday >= 3) {
+                withdrawErrorMessage.textContent = "Only 3 withdrawals allowed per day.";
+                withdrawErrorMessage.style.display = "block";
+                return;
+            }
+
+            if ((dailyWithdrawAmount + amount) > 5000) {
+                withdrawErrorMessage.textContent = "Daily withdrawal limit of ₹5000 exceeded.";
+                withdrawErrorMessage.style.display = "block";
+                return;
+            }
+
+            totalBalance -= amount; // Deduct from total balance
+            winningBalance -= amount; // Deduct from winning balance
+
+            // Ensure winningBalance doesn't go negative (already handled by the check above, but good for safety)
+            if (winningBalance < 0) {
+                winningBalance = 0;
+            }
+
+            dailyWithdrawAmount += amount;
+            withdrawCountToday++;
+
+            updateWalletDisplay(); // Update the main wallet display and offcanvas balances
+            this.reset(); // Clear the form fields
+
+            const now = new Date();
+            addTransaction("TXN" + Date.now(), "Debit", amount, totalBalance, "Pending", now.toISOString().split("T")[0], now.toLocaleTimeString());
+            
+            withdrawSuccessMessage.textContent = "Withdrawal request submitted successfully.";
+            withdrawSuccessMessage.style.display = "block";
+            popupMessageWithdraw.style.display = "block"; // Show the popup message (for withdraw)
+
+            setTimeout(() => {
+                withdrawSuccessMessage.style.display = "none";
+                popupMessageWithdraw.style.display = "none"; // Hide the popup message (for withdraw)
+            }, 5000);
+        });
+
+        // Function to toggle transaction details
+        function toggleDetails(button) {
+            const row = button.closest("tr");
+            const detailRow = row.nextElementSibling;
+            const isVisible = detailRow.style.display === "table-row";
+            detailRow.style.display = isVisible ? "none" : "table-row";
+            button.textContent = isVisible ? "▼" : "▲";
+        }
+
+        // Function to search transactions in the history table
+        function searchTransactions() {
+            const input = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#transactionTableBody tr");
+            for (let i = 0; i < rows.length; i += 2) { // Iterate by 2 because each transaction has a main row and a detail row
+                const mainRow = rows[i];
+                const detailRow = rows[i + 1]; // This assumes a detail row always follows a main row
+
+                if (!mainRow) continue; // Skip if mainRow is null (e.g., at the end of loop)
+
+                const mainRowText = mainRow.textContent.toLowerCase();
+                const detailRowText = detailRow ? detailRow.textContent.toLowerCase() : ""; // Handle case where detailRow might not exist
+
+                const match = mainRowText.includes(input) || detailRowText.includes(input);
+
+                mainRow.style.display = match ? "" : "none";
+                // If the main row doesn't match, or if it does match but the detail row is for a different transaction,
+                // ensure the detail row is hidden and the button is reset.
+                if (!match) {
+                    if (detailRow) {
+                        detailRow.style.display = "none";
+                        const button = mainRow.querySelector("button");
+                        if (button) button.textContent = "▼"; // Reset button text
+                    }
+                }
+                // If it matches, we only control the main row's visibility. The detail row's visibility
+                // is controlled by toggleDetails, so we don't force it open or closed here.
+            }
+        }
+
+
+        // Placeholder logout function
+        function logout() {
+            // In a real application, you'd also send a request to your server to invalidate the session.
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "login.html"; // Redirect to your login page
+        }
+
+        // Game functions
+        function selectSide(side) {
+            selectedSide = side;
+            document.getElementById('btnKing').classList.toggle('selected', side === 'KING');
+            document.getElementById('btnQueen').classList.toggle('selected', side === 'QUEEN');
+        }
+
+        function changeBet(amount) {
+            const betInput = document.getElementById('bet');
+            let current = parseInt(betInput.value) || 10;
+            current += amount;
+            // Bet cannot be less than 10 and cannot exceed totalBalance
+            current = Math.max(10, Math.min(totalBalance, current));
+            betInput.value = current;
+        }
+
+        document.getElementById('bet').addEventListener('blur', () => {
+            let val = parseInt(document.getElementById('bet').value);
+            if (isNaN(val)) { // If user clears the input or enters non-numeric
+                val = 10;
+            }
+            val = Math.max(10, Math.min(totalBalance, val)); // Re-validate on blur
+            document.getElementById('bet').value = val;
+        });
+
+        function flipCoin() {
+            if (flipping || !selectedSide) {
+                if (!selectedSide) {
+                    alert('Please select a side (KING or QUEEN) to start.');
+                }
+                return;
+            }
+
+            let bet = parseInt(document.getElementById('bet').value);
+            if (isNaN(bet) || bet < 10) {
+                alert('Please enter a valid bet (minimum ₹10).');
+                return;
+            }
+
+            if (bet > totalBalance) {
+                alert('Your bet exceeds the available balance.');
+                return;
+            }
+
+            flipping = true;
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('startButton').disabled = true; // Disable button immediately
+
+            const coin = document.getElementById('coinInner');
+            coin.classList.remove('spin');
+            coin.style.transform = ''; // Reset transform for consistent animation restart
+            void coin.offsetWidth; // Trigger reflow to restart animation
+            coin.classList.add('spin');
+
+            const outcome = Math.random() < 0.5 ? 'KING' : 'QUEEN';
+
+            setTimeout(() => {
+                coin.classList.remove('spin');
+                coin.style.transform = outcome === 'KING' ? 'rotateY(0deg)' : 'rotateY(180deg)';
+
+                const win = selectedSide === outcome;
+                document.getElementById('result').textContent = `Result: ${outcome}`;
+                document.getElementById('result').style.display = 'block';
+
+                if (win) {
+                    totalBalance += bet;
+                    winningBalance += bet;
+                    updateWalletDisplay(`+₹${bet}`, 'win');
+                } else {
+                    // This deduction logic is sound, prioritizing remaining then winning
+                    let amountToDeduct = bet;
+
+                    if (remainingBalance >= amountToDeduct) {
+                        remainingBalance -= amountToDeduct;
+                    } else {
+                        amountToDeduct -= remainingBalance;
+                        remainingBalance = 0;
+                        winningBalance -= amountToDeduct;
+                        if (winningBalance < 0) {
+                            winningBalance = 0;
+                        }
+                    }
+                    totalBalance -= bet; // Total balance always decreases by the full bet amount
+
+                    updateWalletDisplay(`−₹${bet}`, 'lose');
+                }
+
+                const li = document.createElement('li');
+                li.className = win ? 'win' : 'lose';
+                const sideSymbol = selectedSide === 'KING' ? '👑' : '👸';
+                const outcomeSymbol = outcome === 'KING' ? '👑' : '👸';
+                li.textContent = `You chose ${sideSymbol}, result: ${outcomeSymbol} — ${win ? 'Won' : 'Lost'} (Wallet: ₹${totalBalance})`;
+                document.getElementById('historyList').prepend(li);
+
+                startCooldown();
+            }, 5000); // Animation duration
+        }
+
+        function startCooldown() {
+            const cooldownDisplay = document.getElementById('cooldown');
+            const startButton = document.getElementById('startButton');
+            let remaining = cooldownSeconds;
+
+            startButton.disabled = true;
+            cooldownDisplay.textContent = `Next flip in: ${remaining}s`;
+
+            cooldownTimer = setInterval(() => {
+                remaining--;
+                cooldownDisplay.textContent = `Next flip in: ${remaining}s`;
+
+                if (remaining <= 0) {
+                    clearInterval(cooldownTimer);
+                    cooldownDisplay.textContent = '';
+                    startButton.disabled = false;
+                    flipping = false;
+                }
+            }, 1000);
+        }
+
+        // Initial call to set up all wallet displays on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateWalletDisplay();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+
+</body>
+</html>

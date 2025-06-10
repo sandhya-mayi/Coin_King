@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - Coin King</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e2f;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .dashboard {
+      margin: 30px auto;
+      padding: 20px;
+      background: #2e2e3e;
+      border-radius: 8px;
+      max-width: 800px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #3e3e5e;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #555;
+    }
+
+    th {
+      background-color: #444;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: crimson;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: darkred;
+    }
+  </style>
+</head>
+<body>
+  <h1>👑 Admin Dashboard</h1>
+
+  <div class="dashboard">
+    <!-- Navigation Buttons -->
+    <div style="text-align:center; margin-bottom:20px;">
+      <button onclick="showSection('userSection')">User Details</button>
+      <button onclick="showSection('transactionSection')">Transaction Details</button>
+      <button onclick="showSection('addBalanceSection')">Add Balance</button>
+      <button onclick="showSection('withdrawSection')">Withdraw Details</button>
+      <button onclick="showSection('gameResultsSection')">Game Results</button>
+    </div>
+
+    <!-- User Details -->
+    <div id="userSection" class="section" style="display:none;">
+      <h2>User Details</h2>
+      <table id="userTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Transaction Details -->
+    <div id="transactionSection" class="section" style="display:none;">
+      <h2>Transaction History</h2>
+      <table id="transactionTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Bet Side</th>
+            <th>Amount Bet</th>
+            <th>Result</th>
+            <th>Won Amount</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Add Balance -->
+    <div id="addBalanceSection" class="section" style="display:none;">
+      <h2>Add Balance</h2>
+      <p>Feature coming soon...</p>
+    </div>
+
+    <!-- Withdraw Details -->
+    <div id="withdrawSection" class="section" style="display:none;">
+      <h2>Withdraw Requests</h2>
+      <p>Feature coming soon...</p>
+    </div>
+
+    <!-- Game Results -->
+    <div id="gameResultsSection" class="section" style="display:none;">
+      <h2>Game Results</h2>
+      <p>Feature coming soon...</p>
+    </div>
+
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll(".section").forEach(div => div.style.display = "none");
+
+      const section = document.getElementById(id);
+      if (section) {
+        section.style.display = "block";
+      } else {
+        console.error(`❌ Section with ID '${id}' not found.`);
+      }
+    }
+
+    function logout() {
+      window.location.href = "admin-login.html";
+    }
+
+    async function loadUsers() {
+      const res = await fetch("http://localhost:3000/api/all-users");
+      const data = await res.json();
+      const tbody = document.getElementById("userTable")?.querySelector("tbody");
+      if (tbody) {
+        tbody.innerHTML = "";
+        data.forEach(user => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.phone}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    async function loadTransactions() {
+      const res = await fetch("http://localhost:3000/api/all-transactions");
+      const data = await res.json();
+      const tbody = document.getElementById("transactionTable")?.querySelector("tbody");
+      if (tbody) {
+        tbody.innerHTML = "";
+        data.forEach(tx => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${tx.id}</td>
+            <td>${tx.username}</td>
+            <td>${tx.email}</td>
+            <td>${tx.bet_side}</td>
+            <td>${tx.bet_amount}</td>
+            <td>${tx.result}</td>
+            <td>${tx.won_amount}</td>
+            <td>${new Date(tx.created_at).toLocaleString()}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    // Load initial data
+    loadUsers();
+    loadTransactions();
+  </script>
+</body>
+</html>
